@@ -42,8 +42,9 @@ def upload():
     # post method
     if(request.method=="POST"):
         # Get file data and save to your uploads folder
-        if(request.method=="POST"):
+        if(request.method=="POST" and upload.validate_on_submit()):
             file = request.files['file']
+            
             # Get file data and save to your uploads folder
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
@@ -110,6 +111,25 @@ def add_header(response):
 def page_not_found(error):
     """Custom 404 page."""
     return render_template('404.html'), 404
+
+
+def get_uploaded_images():
+    rootdir = os.getcwd()
+    listoffiles =[]
+    for subdir, dirs, files in os.walk(rootdir + '/app/static/uploads/'):
+        for file in files:
+            listoffiles.append(file)
+        return listoffiles
+        
+
+@app.route('/files')
+def files():
+    if not session.get('logged_in'):
+        abort(401)
+    """Files page"""    
+    images = get_uploaded_images()
+    return render_template('files.html', images=images)
+
 
 
 if __name__ == '__main__':
